@@ -1,2 +1,43 @@
+import UIKit
 
-RGB(135, 30, 53)
+class CountryPickerVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
+
+    var countries = ["Egypt", "Palestine", "Syrian"]
+    var delegate: CountryPickerDelegate?
+
+    @IBOutlet weak var tableView: UITableView!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setupTableView()
+    }
+
+    private func setupTableView() {
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "countryCell")
+    }
+
+    // MARK: - TableView DataSource and Delegate
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return countries.count
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "countryCell", for: indexPath)
+        cell.textLabel?.text = countries[indexPath.row]
+        return cell
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedCountry = countries[indexPath.row]
+        delegate?.didSelectCountry(country: selectedCountry)
+        dismiss(animated: true, completion: nil)
+    }
+}
+
+// MARK: - Protocol to Pass Data Back
+protocol CountryPickerDelegate {
+    func didSelectCountry(country: String)
+}
+

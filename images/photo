@@ -1,43 +1,150 @@
 import UIKit
 
-class CountryPickerVC: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class SignUpAdditionalInfoVC: UIViewController {
 
-    var countries = ["Egypt", "Palestine", "Syrian"]
-    var delegate: CountryPickerDelegate?
+    // MARK: - Outlets
+    @IBOutlet weak var innerView: UIView!
+    @IBOutlet weak var countryTextField: UITextField!
+    @IBOutlet weak var dateOfBirthTextField: UITextField!
+    
+    // MARK: - Properties
+    let countries = ["Egypt", "Palestine", "Syrian"]
+    let countryFlags = ["eg", "pa", "sy"]
+    
+    var datePicker = UIDatePicker()
+    var tableView = UITableView()
+    var bottomSheetView = UIView()
 
-    @IBOutlet weak var tableView: UITableView!
-
+    private var presenter: SignUpPresenterProtocol!
+    
+    // MARK: - Lifecycle Methods
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        presenter = AuthenticationPresenter(view: self)
+        
+        setupNavigationBar()
+        setupViews()
         setupTableView()
+        setupDatePicker()
+        setupCountryTextField()
+        setupBottomSheet()
+    }
+    
+    // MARK: - Action Methods
+    @IBAction func continueBtnTapped(_ sender: UIButton) {
+        self.presenter.tryRegister?(country: countryTextField.text, dateOfBirth: dateOfBirthTextField.text)
+    }
+    
+    @IBAction func signInBtnTapped(_ sender: UIButton) {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.window?.rootViewController = SignInVC()
+    }
+    
+    // MARK: - Setup Methods
+    private func setupNavigationBar() {
+        self.navigationController?.navigationBar.tintColor = UIColor.black
+        self.navigationController?.isNavigationBarHidden = false
+    }
+    
+    private func setupViews() {
+        UIColor.setupBackgroundColor(for: self.view, bottomColor: UIColor(hex: "FFC1C7"))
+        UIColor.setupBackgroundColor(for: self.innerView, bottomColor: UIColor(hex: "FFC1C7"))
     }
 
-    private func setupTableView() {
+    private func setupCountryTextField() {
+        let arrowImageView = UIImageView(image: UIImage(systemName: "chevron.down"))
+        arrowImageView.tintColor = .gray
+        arrowImageView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        countryTextField.rightView = arrowImageView
+        countryTextField.rightViewMode = .always
+        
+        countryTextField.addTarget(self, action: #selector(showBottomSheet), for: .editingDidBegin)
+    }
+    
+    private func setupDatePicker() {
+        datePicker.backgroundColor = .white
+        datePicker.datePickerMode = .date
+        datePicker.preferredDatePickerStyle = .wheels
+        datePicker.maximumDate = Calendar.current.date(byAdding: .year, value: -18, to: Date())
+
+        dateOfBirthTextField.inputView = datePicker
+        
+        datePicker.addTarget(self, action: #selector(handleDateSelection), for: .valueChanged)
+        
+        let calendarIconView = UIImageView(image: UIImage(systemName: "calendar"))
+        calendarIconView.tintColor = .gray
+        calendarIconView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        dateOfBirthTextField.rightView = calendarIconView
+        dateOfBirthTextField.rightViewMode = .always
+    }
+
+    // MARK: - Bottom Sheet Setup
+    private func setupBottomSheet() {
+        bottomSheetView.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: 300)
+        bottomSheetView.backgroundColor = .white
+        bottomSheetView.layer.cornerRadius = 15
+        
+        tableView.frame = bottomSheetView.bounds
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "countryCell")
+        
+        bottomSheetView.addSubview(tableView)
+        self.view.addSubview(bottomSheetView)
+    }
+    
+    @objc private func showBottomSheet() {
+        UIView.animate(withDuration: 0.3) {
+            self.bottomSheetView.frame.origin.y = self.view.frame.height - 300
+        }
+    }
+    
+    private func hideBottomSheet() {
+        UIView.animate(withDuration: 0.3) {
+            self.bottomSheetView.frame.origin.y = self.view.frame.height
+        }
     }
 
-    // MARK: - TableView DataSource and Delegate
+    @objc private func handleDateSelection() {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        dateOfBirthTextField.text = formatter.string(from: datePicker.date)
+    }
+}
+
+// MARK: - UITableView DataSource and Delegate
+extension SignUpAdditionalInfoVC: UITableViewDelegate, UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return countries.count
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "countryCell", for: indexPath)
+        let cell = UITableViewCell(style: .default, reuseIdentifier: "countryCell")
+        
+        let flagImageView = UIImageView(image: UIImage(named: countryFlags[indexPath.row]))
+        flagImageView.frame = CGRect(x: 10, y: 5, width: 30, height: 30)
+        
         cell.textLabel?.text = countries[indexPath.row]
+        cell.imageView?.image = flagImageView.image
+        
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedCountry = countries[indexPath.row]
-        delegate?.didSelectCountry(country: selectedCountry)
-        dismiss(animated: true, completion: nil)
+        countryTextField.text = countries[indexPath.row]
+        hideBottomSheet()
     }
 }
 
-// MARK: - Protocol to Pass Data Back
-protocol CountryPickerDelegate {
-    func didSelectCountry(country: String)
+// MARK: - SignUpAdditionalInfoVC Extension for Protocol
+extension SignUpAdditionalInfoVC: AuthenticationProtocol {
+    func showMessage(title: String?, message: String?) {
+        self.showAlert(title: title, message: message)
+    }
+    
+    func goToNextStep() {
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
+        appDelegate.window?.rootViewController = SignInVC()
+    }
 }
-

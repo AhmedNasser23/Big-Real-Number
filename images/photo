@@ -15,7 +15,11 @@ class SignUpAdditionalInfoVC: UIViewController {
     var tableView = UITableView()
     var bottomSheetView = UIView()
     var grabberView = UIView()  // Grabber view for the bottom sheet
-
+    
+    var initialBottomSheetHeight: CGFloat = 300  // Initial bottom sheet height
+    var maxBottomSheetHeight: CGFloat = 600  // Maximum height of the bottom sheet
+    var minBottomSheetHeight: CGFloat = 150  // Minimum height of the bottom sheet
+    
     private var presenter: SignUpPresenterProtocol!
     
     // MARK: - Lifecycle Methods
@@ -82,7 +86,7 @@ class SignUpAdditionalInfoVC: UIViewController {
     // MARK: - Bottom Sheet Setup
     private func setupBottomSheet() {
         // Bottom sheet view
-        bottomSheetView.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: 300)
+        bottomSheetView.frame = CGRect(x: 0, y: self.view.frame.height, width: self.view.frame.width, height: initialBottomSheetHeight)
         bottomSheetView.backgroundColor = .white
         bottomSheetView.layer.cornerRadius = 15
 
@@ -91,6 +95,10 @@ class SignUpAdditionalInfoVC: UIViewController {
         grabberView.backgroundColor = UIColor.lightGray
         grabberView.layer.cornerRadius = 3
         bottomSheetView.addSubview(grabberView)
+
+        // Add pan gesture recognizer to the grabber
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture))
+        grabberView.addGestureRecognizer(panGesture)
 
         // Set up the table view
         tableView.frame = CGRect(x: 0, y: 30, width: bottomSheetView.bounds.width, height: bottomSheetView.bounds.height - 30)
@@ -104,7 +112,7 @@ class SignUpAdditionalInfoVC: UIViewController {
     
     @objc private func showBottomSheet() {
         UIView.animate(withDuration: 0.3) {
-            self.bottomSheetView.frame.origin.y = self.view.frame.height - 300
+            self.bottomSheetView.frame.origin.y = self.view.frame.height - self.initialBottomSheetHeight
         }
     }
     
@@ -118,6 +126,35 @@ class SignUpAdditionalInfoVC: UIViewController {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         dateOfBirthTextField.text = formatter.string(from: datePicker.date)
+    }
+    
+    // MARK: - Handle Pan Gesture for Bottom Sheet
+    @objc private func handlePanGesture(gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: self.view)
+        let newHeight = bottomSheetView.frame.height - translation.y
+        
+        // Make sure the new height is within the bounds of min and max heights
+        if newHeight >= minBottomSheetHeight && newHeight <= maxBottomSheetHeight {
+            bottomSheetView.frame = CGRect(x: 0, y: self.view.frame.height - newHeight, width: self.view.frame.width, height: newHeight)
+            gesture.setTranslation(.zero, in: self.view)
+        }
+        
+        // If the gesture ends, snap the bottom sheet to the nearest boundary if necessary
+        if gesture.state == .ended {
+            let velocity = gesture.velocity(in: self.view)
+            
+            if velocity.y > 0 {
+                // If dragging down fast, snap to minimum height
+                UIView.animate(withDuration: 0.3) {
+                    self.bottomSheetView.frame = CGRect(x: 0, y: self.view.frame.height - self.minBottomSheetHeight, width: self.view.frame.width, height: self.minBottomSheetHeight)
+                }
+            } else if velocity.y < 0 {
+                // If dragging up fast, snap to maximum height
+                UIView.animate(withDuration: 0.3) {
+                    self.bottomSheetView.frame = CGRect(x: 0, y: self.view.frame.height - self.maxBottomSheetHeight, width: self.view.frame.width, height: self.maxBottomSheetHeight)
+                }
+            }
+        }
     }
 }
 

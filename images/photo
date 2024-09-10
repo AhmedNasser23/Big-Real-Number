@@ -25,10 +25,9 @@ class SignUpAdditionalInfoVC: UIViewController {
         
         setupNavigationBar()
         setupViews()
-        setupTableView()
         setupDatePicker()
         setupCountryTextField()
-        setupBottomSheet()
+        setupBottomSheet()  // This will configure both the bottom sheet and the table view
     }
     
     // MARK: - Action Methods

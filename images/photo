@@ -20,13 +20,18 @@ class CountriesListVC: UIViewController {
         setupGrabber()
         setupTableView()
         setupContainerStack()
-        setupBottomSheetPresentation() // Setup bottom sheet presentation
+        setupBottomSheetPresentation()
     }
     
-    // Add this function to configure the bottom sheet presentation
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        view.layer.cornerRadius = 20
+        view.layer.masksToBounds = true
+    }
+
     private func setupBottomSheetPresentation() {
         if let sheet = self.sheetPresentationController {
-            // Enable grabber and swipe-to-dismiss functionality
             sheet.prefersGrabberVisible = true
             sheet.detents = [.medium(), .large()]  // You can adjust detents as needed
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
@@ -99,7 +104,7 @@ extension CountriesListVC: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 30
+        return 80
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

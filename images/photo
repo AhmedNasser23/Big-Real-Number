@@ -1,10 +1,3 @@
-//
-//  CountriesListVC.swift
-//  Speedo Transfer
-//
-//  Created by Ahmed Nasser on 11/09/2024.
-//
-
 import UIKit
 
 protocol CounteryListDelegate {
@@ -27,6 +20,17 @@ class CountriesListVC: UIViewController {
         setupGrabber()
         setupTableView()
         setupContainerStack()
+        setupBottomSheetPresentation() // Setup bottom sheet presentation
+    }
+    
+    // Add this function to configure the bottom sheet presentation
+    private func setupBottomSheetPresentation() {
+        if let sheet = self.sheetPresentationController {
+            // Enable grabber and swipe-to-dismiss functionality
+            sheet.prefersGrabberVisible = true
+            sheet.detents = [.medium(), .large()]  // You can adjust detents as needed
+            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+        }
     }
     
     private func setupGrabber() {
@@ -34,11 +38,6 @@ class CountriesListVC: UIViewController {
         grabber.backgroundColor = UIColor.lightGray.withAlphaComponent(0.5)
         grabber.layer.cornerRadius = 2.5
         grabber.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            grabber.heightAnchor.constraint(equalToConstant: 5),
-            grabber.widthAnchor.constraint(equalToConstant: 50)
-        ])
     }
     
     private func setupTableView() {

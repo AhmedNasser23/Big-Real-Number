@@ -23,18 +23,13 @@ class CountriesListVC: UIViewController {
         setupBottomSheetPresentation()
     }
     
-    // Add corner radius and apply it after the layout is completed
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        view.layer.cornerRadius = 20
-        view.layer.masksToBounds = true
-    }
-
     private func setupBottomSheetPresentation() {
         if let sheet = self.sheetPresentationController {
             sheet.prefersGrabberVisible = true
-            sheet.detents = [.medium(), .large()]
+            sheet.detents = [.medium(), .large()] 
             sheet.prefersScrollingExpandsWhenScrolledToEdge = false
+
+            sheet.preferredCornerRadius = 20
         }
     }
     
@@ -74,6 +69,7 @@ class CountriesListVC: UIViewController {
             containerStack.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
 
+        // Setting specific height for grabber
         NSLayoutConstraint.activate([
             grabber.heightAnchor.constraint(equalToConstant: 5),
             grabber.widthAnchor.constraint(equalToConstant: 50),
@@ -103,7 +99,7 @@ extension CountriesListVC: UITableViewDelegate, UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 30
+        return 80
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

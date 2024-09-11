@@ -1,117 +1,24 @@
-import UIKit
-
-protocol CounteryListDelegate {
-    func didSelectCountry(name: String)
-}
-
-class CountriesListVC: UIViewController {
-
-    var counteries: [String] = ["Egypt", "Palestine", "Syrian"]
-    
-    var delegate: CounteryListDelegate?
-    
-    private var tableView: UITableView!
-    private var grabber: UIView!
-    private var containerStack: UIStackView!
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        setupGrabber()
-        setupTableView()
-        setupContainerStack()
-        setupBottomSheetPresentation()
+{
+  "id": 0,
+  "name": "string",
+  "email": "string",
+  "dateOfBirth": "2024-09-11",
+  "country": "string",
+  "createdAt": "2024-09-11T21:24:05.363Z",
+  "updatedAt": "2024-09-11T21:24:05.363Z",
+  "phoneNumber": "string",
+  "accounts": [
+    {
+      "id": 0,
+      "accountNumber": "string",
+      "accountType": "SAVINGS",
+      "balance": 0,
+      "currency": "EGP",
+      "accountName": "string",
+      "accountDescription": "string",
+      "active": true,
+      "createdAt": "2024-09-11T21:24:05.363Z",
+      "updatedAt": "2024-09-11T21:24:05.363Z"
     }
-    
-    private func setupBottomSheetPresentation() {
-        if let sheet = self.sheetPresentationController {
-            sheet.prefersGrabberVisible = true
-            sheet.detents = [.medium(), .large()] 
-            sheet.prefersScrollingExpandsWhenScrolledToEdge = false
-
-            sheet.preferredCornerRadius = 20
-        }
-    }
-    
-    private func setupGrabber() {
-        grabber = UIView()
-        grabber.backgroundColor = UIColor.lightGray.withAlphaComponent(0.5)
-        grabber.layer.cornerRadius = 2.5
-        grabber.translatesAutoresizingMaskIntoConstraints = false
-    }
-    
-    private func setupTableView() {
-        tableView = UITableView()
-        tableView.delegate = self
-        tableView.dataSource = self
-        
-        let nib = UINib(nibName: "CounteryCell", bundle: nil)
-        tableView.register(nib, forCellReuseIdentifier: "CounteryCell")
-        
-        tableView.separatorStyle = .none
-        tableView.contentInset = UIEdgeInsets(top: 10, left: 0, bottom: 10, right: 0)
-    }
-
-    private func setupContainerStack() {
-        containerStack = UIStackView(arrangedSubviews: [grabber, tableView])
-        containerStack.backgroundColor = .white
-        containerStack.axis = .vertical
-        containerStack.alignment = .fill
-        containerStack.spacing = 10
-        containerStack.translatesAutoresizingMaskIntoConstraints = false
-
-        view.addSubview(containerStack)
-        
-        NSLayoutConstraint.activate([
-            containerStack.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 10),
-            containerStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 10),
-            containerStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -10),
-            containerStack.bottomAnchor.constraint(equalTo: view.bottomAnchor)
-        ])
-
-        // Setting specific height for grabber
-        NSLayoutConstraint.activate([
-            grabber.heightAnchor.constraint(equalToConstant: 5),
-            grabber.widthAnchor.constraint(equalToConstant: 50),
-            grabber.centerXAnchor.constraint(equalTo: containerStack.centerXAnchor)
-        ])
-    }
-    
-}
-// MARK: - TableView DataSource and Delegate
-extension CountriesListVC: UITableViewDelegate, UITableViewDataSource {
-
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return counteries.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "CounteryCell", for: indexPath) as! CounteryCell
-        let countery = counteries[indexPath.row]
-        cell.configure(with: countery)
-        return cell
-    }
-
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        let selectedCountery = counteries[indexPath.row]
-        delegate?.didSelectCountry(name: selectedCountery)
-        dismiss(animated: true, completion: nil)
-    }
-
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 80
-    }
-
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        let padding: CGFloat = 10
-        let backgroundView = UIView(frame: CGRect(x: 0, y: padding / 2, width: tableView.bounds.width, height: cell.bounds.height - padding))
-        backgroundView.layer.cornerRadius = 10
-        backgroundView.layer.masksToBounds = true
-        backgroundView.backgroundColor = .white
-        cell.backgroundView = backgroundView
-
-        cell.contentView.backgroundColor = .clear
-        cell.layer.masksToBounds = false
-        cell.contentView.layer.masksToBounds = false
-    }
+  ]
 }
